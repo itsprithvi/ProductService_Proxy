@@ -2,6 +2,10 @@ package com.prithvi.productservice_proxy.controllers;
 
 
 import com.prithvi.productservice_proxy.dtos.ProductDto;
+import com.prithvi.productservice_proxy.models.Product;
+import com.prithvi.productservice_proxy.services.IProductService;
+import com.prithvi.productservice_proxy.services.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -10,9 +14,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/products")
 public class ProductController {
 
+
+    IProductService productService;
+
+    public ProductController(IProductService productService) {
+        this.productService = productService;
+    }
+
     @GetMapping("/{id}")
-    public String getSingleProduct(@PathVariable("id") int productId) {
-        return "This is the single product " + productId;
+    public Product getSingleProduct(@PathVariable("id") Long productId) {
+        Product product = this.productService.getSingleProduct(productId);
+        return product;
     }
 
     @PostMapping("")
@@ -25,7 +37,7 @@ public class ProductController {
         return "Updating Product";
     }
 
-    @DeleteMapping("/{productId")
+    @DeleteMapping("/{productId}")
     public String deleteProduct(@PathVariable("productId") Long productId) {
         return "Deleting a product with id : " +productId;
     }

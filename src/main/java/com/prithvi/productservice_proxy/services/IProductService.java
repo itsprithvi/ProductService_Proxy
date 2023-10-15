@@ -1,11 +1,12 @@
 package com.prithvi.productservice_proxy.services;
 
 import com.prithvi.productservice_proxy.dtos.ProductDto;
+import com.prithvi.productservice_proxy.models.Product;
 
 public interface IProductService {
     String getAllProducts();
 
-    String getSingleProduct(Long productId);
+    Product getSingleProduct(Long productId);
 
     String addNewProduct(ProductDto productDto);
 
