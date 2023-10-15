@@ -4,8 +4,12 @@ import com.prithvi.productservice_proxy.dtos.ProductDto;
 import com.prithvi.productservice_proxy.models.Categories;
 import com.prithvi.productservice_proxy.models.Product;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ProductService implements IProductService {
@@ -16,24 +20,39 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public String getAllProducts() {
-        return null;
+    public List<Product> getAllProducts() {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        ResponseEntity<ProductDto[]> productDtos =
+                restTemplate.getForEntity("https://fakestoreapi.com/products", ProductDto[].class);
+
+        List<Product> answer = new ArrayList<>();
+
+        for(ProductDto productDto : productDtos.getBody()) {
+            Product product = getProduct(productDto);
+            answer.add(product);
+        }
+
+        return answer;
     }
 
     @Override
     public Product getSingleProduct(Long productId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ProductDto productDto =
-                restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", ProductDto.class, productId).getBody();
 
-        Product product = getProduct(productDto);
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        ResponseEntity<ProductDto> productDto =
+                restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", ProductDto.class, productId);
+
+        Product product = getProduct(productDto.getBody());
 
         return product;
     }
 
     @Override
-    public String addNewProduct(ProductDto productDto) {
-        return null;
+    public Product addNewProduct(ProductDto productDto) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        restTemplate.postForEntity("http://fakestoreapi.com/products", productDto, ProductDto.class);
+        Product product = getProduct(productDto);
+        return product;
     }
 
     @Override

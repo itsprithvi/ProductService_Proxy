@@ -4,9 +4,13 @@ package com.prithvi.productservice_proxy.controllers;
 import com.prithvi.productservice_proxy.dtos.ProductDto;
 import com.prithvi.productservice_proxy.models.Product;
 import com.prithvi.productservice_proxy.services.IProductService;
-import com.prithvi.productservice_proxy.services.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 // This controller will always answer products
@@ -21,15 +25,37 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @GetMapping("")
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return new ResponseEntity<>(this.productService.getAllProducts(), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
-    public Product getSingleProduct(@PathVariable("id") Long productId) {
-        Product product = this.productService.getSingleProduct(productId);
-        return product;
+    public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long productId) {
+        try {
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+            headers.add("Accept", "application/json");
+            headers.add("Content-Type", "application/json");
+            headers.add("auth-token", "heyaccess");
+            Product product = this.productService.getSingleProduct(productId);
+            if(productId < 1) {
+                throw new IllegalArgumentException("Something went wrong");
+            }
+            ResponseEntity<Product> responseEntity = new ResponseEntity<>(product, headers, HttpStatus.OK);
+
+            return responseEntity;
+        } catch (Exception e) {
+            //ResponseEntity<Product> responseEntity = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500
+        }
+
     }
 
     @PostMapping("")
-    public String addNewProduct(@RequestBody ProductDto productDto) {
-        return "Adding new Product " +productDto;
+    public ResponseEntity<Product> addNewProduct(@RequestBody ProductDto productDto) {
+        Product product = this.productService.addNewProduct(productDto);
+        ResponseEntity<Product> responseEntity = new ResponseEntity<>(product, HttpStatus.OK);
+        return responseEntity;
     }
 
     @PutMapping("/{productId}")
