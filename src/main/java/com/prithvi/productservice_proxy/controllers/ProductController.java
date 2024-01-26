@@ -1,7 +1,9 @@
 package com.prithvi.productservice_proxy.controllers;
 
 
+import com.prithvi.productservice_proxy.clients.IClientProductDto;
 import com.prithvi.productservice_proxy.dtos.ProductDto;
+import com.prithvi.productservice_proxy.models.Categories;
 import com.prithvi.productservice_proxy.models.Product;
 import com.prithvi.productservice_proxy.services.IProductService;
 import org.springframework.http.HttpStatus;
@@ -39,7 +41,7 @@ public class ProductController {
             headers.add("auth-token", "heyaccess");
             Product product = this.productService.getSingleProduct(productId);
             if(productId < 1) {
-                throw new IllegalArgumentException("Something went wrong");
+                throw new Exception("Something went wrong");
             }
             ResponseEntity<Product> responseEntity = new ResponseEntity<>(product, headers, HttpStatus.OK);
 
@@ -53,14 +55,24 @@ public class ProductController {
 
     @PostMapping("")
     public ResponseEntity<Product> addNewProduct(@RequestBody ProductDto productDto) {
-        Product product = this.productService.addNewProduct(productDto);
+        Product product = getProduct(productDto);
+        Product savedProduct = this.productService.addNewProduct(product);
         ResponseEntity<Product> responseEntity = new ResponseEntity<>(product, HttpStatus.OK);
         return responseEntity;
     }
 
-    @PutMapping("/{productId}")
-    public String updateProduct(@PathVariable("productId") Long productId) {
-        return "Updating Product";
+    @PatchMapping("/{productId}")
+    public Product updateProduct(@PathVariable("productId") Long productId, @RequestBody ProductDto productDto) {
+
+        Product product = new Product();
+        product.setId(productDto.getId());
+        product.setCategories(new Categories());
+        product.getCategories().setName(productDto.getCategory());
+        product.setTitle(productDto.getTitle());
+        product.setPrice(productDto.getPrice());
+        product.setDescription(productDto.getDescription());
+
+        return this.productService.updateProduct(productId, product);
     }
 
     @DeleteMapping("/{productId}")
@@ -68,4 +80,16 @@ public class ProductController {
         return "Deleting a product with id : " +productId;
     }
 
+    private Product getProduct(ProductDto productDto) {
+        Product product = new Product();
+        product.setId(productDto.getId());
+        product.setTitle(productDto.getTitle());
+        product.setPrice(productDto.getPrice());
+        Categories categories = new Categories();
+        categories.setName(productDto.getCategory());
+        product.setCategories(categories);
+        product.setImageUrl(productDto.getImage());
+        product.setDescription(productDto.getDescription());
+        return product;
+    }
 }

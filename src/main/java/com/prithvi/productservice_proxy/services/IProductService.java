@@ -1,5 +1,6 @@
 package com.prithvi.productservice_proxy.services;
 
+import com.prithvi.productservice_proxy.clients.IClientProductDto;
 import com.prithvi.productservice_proxy.dtos.ProductDto;
 import com.prithvi.productservice_proxy.models.Product;
 
@@ -10,9 +11,11 @@ public interface IProductService {
 
     Product getSingleProduct(Long productId);
 
-    Product addNewProduct(ProductDto productDto);
+    //String updateProduct(Long productId);
 
-    String updateProduct(Long productId);
+    Product addNewProduct(Product product);
+
+    Product updateProduct(Long productId, Product product);
 
     String deleteProduct(Long productId);
 }
