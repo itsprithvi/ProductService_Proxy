@@ -54,10 +54,9 @@ public class ProductController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Product> addNewProduct(@RequestBody ProductDto productDto) {
-        Product product = getProduct(productDto);
-        Product savedProduct = this.productService.addNewProduct(product);
-        ResponseEntity<Product> responseEntity = new ResponseEntity<>(product, HttpStatus.OK);
+    public ResponseEntity<Product> addNewProduct(@RequestBody IClientProductDto productDto) {
+        Product savedProduct = this.productService.addNewProduct(productDto);
+        ResponseEntity<Product> responseEntity = new ResponseEntity<>(savedProduct, HttpStatus.OK);
         return responseEntity;
     }
 
@@ -66,8 +65,8 @@ public class ProductController {
 
         Product product = new Product();
         product.setId(productDto.getId());
-        product.setCategories(new Categories());
-        product.getCategories().setName(productDto.getCategory());
+        product.setCategory(new Categories());
+        product.getCategory().setName(productDto.getCategory());
         product.setTitle(productDto.getTitle());
         product.setPrice(productDto.getPrice());
         product.setDescription(productDto.getDescription());
@@ -87,7 +86,7 @@ public class ProductController {
         product.setPrice(productDto.getPrice());
         Categories categories = new Categories();
         categories.setName(productDto.getCategory());
-        product.setCategories(categories);
+        product.setCategory(categories);
         product.setImageUrl(productDto.getImage());
         product.setDescription(productDto.getDescription());
         return product;

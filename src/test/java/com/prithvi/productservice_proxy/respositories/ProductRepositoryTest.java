@@ -29,7 +29,7 @@ class ProductRepositoryTest {
         Product product = new Product();
         product.setTitle("Laptop");
         product.setDescription("Laptop");
-        product.setCategories(categories);
+        product.setCategory(categories);
         productRepository.save(product);
     }
 }

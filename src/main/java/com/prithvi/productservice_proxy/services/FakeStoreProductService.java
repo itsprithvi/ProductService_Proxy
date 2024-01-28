@@ -3,7 +3,6 @@ package com.prithvi.productservice_proxy.services;
 import com.prithvi.productservice_proxy.clients.IClientProductDto;
 import com.prithvi.productservice_proxy.clients.fakestore.client.FakeStoreClient;
 import com.prithvi.productservice_proxy.clients.fakestore.dto.FakeStoreProductDto;
-import com.prithvi.productservice_proxy.dtos.ProductDto;
 import com.prithvi.productservice_proxy.models.Categories;
 import com.prithvi.productservice_proxy.models.Product;
 import jakarta.annotation.Nullable;
@@ -11,7 +10,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestClientException;
@@ -19,12 +17,13 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 //@Service
 public class FakeStoreProductService implements IProductService {
 
-    private RestTemplateBuilder restTemplateBuilder;
-    private FakeStoreClient fakeStoreClient;
+    private final RestTemplateBuilder restTemplateBuilder;
+    private final FakeStoreClient fakeStoreClient;
 
     public FakeStoreProductService(RestTemplateBuilder restTemplateBuilder, FakeStoreClient fakeStoreClient) {
         this.restTemplateBuilder = restTemplateBuilder;
@@ -59,7 +58,7 @@ public class FakeStoreProductService implements IProductService {
             product.setPrice(productDto.getPrice());
             Categories categories = new Categories();
             categories.setName(productDto.getCategory());
-            product.setCategories(categories);
+            product.setCategory(categories);
             product.setImageUrl(productDto.getImage());
             product.setDescription(productDto.getDescription());
 
@@ -76,7 +75,7 @@ public class FakeStoreProductService implements IProductService {
         ResponseEntity<FakeStoreProductDto> productDto =
                 restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", FakeStoreProductDto.class, productId);
 
-        Product product = getProduct(productDto.getBody());
+        Product product = getProduct(Objects.requireNonNull(productDto.getBody()));
 
         return product;
     }
@@ -90,8 +89,12 @@ public class FakeStoreProductService implements IProductService {
 //    }
 
     @Override
-    public Product addNewProduct(Product product) {
-        return null;
+    public Product addNewProduct(IClientProductDto productDto) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        restTemplate.postForEntity("https://fakestoreapi.com/products", productDto, FakeStoreProductDto.class);
+
+        Product product = getProduct((FakeStoreProductDto)productDto);
+        return product;
     }
 
     @Override
@@ -102,7 +105,7 @@ public class FakeStoreProductService implements IProductService {
         fakeStoreProductDto.setImage(product.getImageUrl());
         fakeStoreProductDto.setPrice(product.getPrice());
         fakeStoreProductDto.setTitle(product.getTitle());
-        fakeStoreProductDto.setCategory(product.getCategories().getName());
+        fakeStoreProductDto.setCategory(product.getCategory().getName());
 
         ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity = requestForEntity(
           HttpMethod.PATCH,
@@ -129,7 +132,7 @@ public class FakeStoreProductService implements IProductService {
         product.setPrice(productDto.getPrice());
         Categories categories = new Categories();
         categories.setName(productDto.getCategory());
-        product.setCategories(categories);
+        product.setCategory(categories);
         product.setImageUrl(productDto.getImage());
         product.setDescription(productDto.getDescription());
         return product;

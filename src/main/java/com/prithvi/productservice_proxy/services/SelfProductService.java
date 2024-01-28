@@ -1,6 +1,6 @@
 package com.prithvi.productservice_proxy.services;
 
-import com.prithvi.productservice_proxy.clients.fakestore.dto.FakeStoreProductDto;
+import com.prithvi.productservice_proxy.clients.IClientProductDto;
 import com.prithvi.productservice_proxy.dtos.ProductDto;
 import com.prithvi.productservice_proxy.models.Categories;
 import com.prithvi.productservice_proxy.models.Product;
@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class SelfProductService implements IProductService{
 
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public SelfProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -30,9 +30,9 @@ public class SelfProductService implements IProductService{
     }
 
     @Override
-    public Product addNewProduct(Product product) {
-        this.productRepository.save(product);
-        return product;
+    public Product addNewProduct(IClientProductDto product) {
+        this.productRepository.save((Product) product);
+        return (Product) product;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SelfProductService implements IProductService{
         product.setPrice(productDto.getPrice());
         Categories categories = new Categories();
         categories.setName(productDto.getCategory());
-        product.setCategories(categories);
+        product.setCategory(categories);
         product.setImageUrl(productDto.getImage());
         product.setDescription(productDto.getDescription());
         return product;
